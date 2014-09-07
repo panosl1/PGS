@@ -105,8 +105,7 @@ public class JSonRequestor {
 
 	public static List<Cookie> doLogin(String user, String pass, String myURL) {
 		try {
-			cmLogin loginReq = new cmLogin("login",user,pass);
-			
+			cmLogin loginReq = new cmLogin("login", user, pass);
 
 			GsonBuilder builder = new GsonBuilder();
 
@@ -196,9 +195,9 @@ public class JSonRequestor {
 			stringEntity.setContentType("application/json");
 			httppost.setEntity(stringEntity);
 
-			System.out
-					.println("executing request " + httppost.getRequestLine() + System.getProperty("line.separator") + jsonReq );
-			
+			System.out.println("executing request " + httppost.getRequestLine()
+					+ System.getProperty("line.separator") + jsonReq);
+
 			HttpResponse response = httpclient.execute(httppost, localContext);
 
 			System.out.println(response + "\n");
@@ -248,41 +247,39 @@ public class JSonRequestor {
 		System.out.println("Succesfully Logged Off");
 	}
 
-	
 	public static void chkVersion(String cmURL, List<Cookie> cookies) {
 		// Logout and purge cookie on server
 		cmMain mainreq = new cmMain();
 		mainreq.setService("cmmain");
 		mainreq.setCall("getVersion");
 
-
 		Gson g = new Gson();
 		String json = g.toJson(mainreq);
 
-		
 		String ver_string = doRequest(json, cmURL, cookies);
-		cmgetVersion getVer = new Gson().fromJson(ver_string, cmgetVersion.class);
+		cmgetVersion getVer = new Gson().fromJson(ver_string,
+				cmgetVersion.class);
 		System.out.println("Version JSON String " + ver_string);
 		String message = getVer.getCmdaemonBuild().toString();
 		@SuppressWarnings("resource")
 		Scanner resInt = new Scanner(message).useDelimiter("[^0-9]+");
 		int build_ver = resInt.nextInt();
-		if (build_ver < Constants.CMDAEM0N_MIN_BUILD){
-			JOptionPane.showMessageDialog(null, "You need CMDaemon revision " + Constants.CMDAEM0N_MIN_BUILD + " or later.");
-			System.out.println("You need CMDaemon revision " + Constants.CMDAEM0N_MIN_BUILD + " or later.");
-			System.exit(0); 
+		if (build_ver < Constants.CMDAEM0N_MIN_BUILD) {
+			JOptionPane.showMessageDialog(null, "You need CMDaemon revision "
+					+ Constants.CMDAEM0N_MIN_BUILD + " or later.");
+			System.out.println("You need CMDaemon revision "
+					+ Constants.CMDAEM0N_MIN_BUILD + " or later.");
+			System.exit(0);
 			System.out.println("Succesfully Logged Off");
 		}
 
-		
 	}
- 
+
 	public static int countLines(String text, String search) {
-	    int count = text.split(search).length - 1;
-	    return count;
+		int count = text.split(search).length - 1;
+		return count;
 	}
-	
-	
+
 	public static void main(String[] args) {
 		String fileBasename = null;
 		String[] zipArgs = null;
@@ -328,15 +325,17 @@ public class JSonRequestor {
 		}
 
 		JTextField uiHost = new JTextField("ucs-head.brightcomputing.com");
-		//TextPrompt puiHost = new TextPrompt("hadoop.brightcomputing.com",uiHost);
+		// TextPrompt puiHost = new
+		// TextPrompt("hadoop.brightcomputing.com",uiHost);
 		JTextField uiUser = new JTextField("nexus");
-		//TextPrompt puiUser = new TextPrompt("nexus", uiUser);
+		// TextPrompt puiUser = new TextPrompt("nexus", uiUser);
 		JTextField uiPass = new JPasswordField("system");
-		//TextPrompt puiPass = new TextPrompt("", uiPass);
+		// TextPrompt puiPass = new TextPrompt("", uiPass);
 		JTextField uiWdir = new JTextField("/home/nexus/pp1234");
-		//TextPrompt puiWdir = new TextPrompt("/home/nexus/nexus_workdir", uiWdir);
+		// TextPrompt puiWdir = new TextPrompt("/home/nexus/nexus_workdir",
+		// uiWdir);
 		JTextField uiOut = new JTextField("foo");
-		//TextPrompt puiOut = new TextPrompt("foobar123", uiOut);
+		// TextPrompt puiOut = new TextPrompt("foobar123", uiOut);
 
 		JPanel myPanel = new JPanel(new GridLayout(5, 1));
 		myPanel.add(new JLabel("Bright HeadNode hostname:"));
@@ -428,9 +427,7 @@ public class JSonRequestor {
 		// Gson g = new Gson();
 		Gson g = builder.create();
 
-	
 		String json2 = g.toJson(myjob);
-		
 
 		// To be used from a real console and not Eclipse
 		Delete.main(zipArgs[1]);
@@ -459,35 +456,32 @@ public class JSonRequestor {
 		readfile.setService("cmmain");
 		readfile.setCall("readFile");
 		readfile.setUserName(ruser);
-		
-		int fileByteIdx= 1;
-		
+
+		int fileByteIdx = 1;
+
 		readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
-				+ ".sum@+" + fileByteIdx );
+				+ ".sum@+" + fileByteIdx);
 		String json4 = g.toJson(readfile);
-		
-		String monFile = JSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("^\"|\"$", "");
-		if(monFile.startsWith("Unable")){
-		monFile = "";	
-		}
-		else{
+
+		String monFile = JSonRequestor.doRequest(json4, cmURL, cookies)
+				.replaceAll("^\"|\"$", "");
+		if (monFile.startsWith("Unable")) {
+			monFile = "";
+		} else {
 			fileByteIdx += countLines(monFile, "\\\\n");
 			System.out.println("");
 		}
-				
-		
+
 		StringBuffer output = new StringBuffer();
 		// Get the correct Line Separator for the OS (CRLF or LF)
 		String nl = System.getProperty("line.separator");
 		String filename = chooser.getCurrentDirectory().toString()
-							+ File.separator + fileBasename + ".sum.txt";
-		System.out.println("Local monitoring file: " +  filename);
-		
+				+ File.separator + fileBasename + ".sum.txt";
+		System.out.println("Local monitoring file: " + filename);
+
 		output.append(monFile.replaceAll("\\\\n",
 				System.getProperty("line.separator")));
-		
-		
-		
+
 		String getJobJSON = JSonRequestor.doRequest(json3, cmURL, cookies);
 		jobGet getJobObj = new Gson().fromJson(getJobJSON, jobGet.class);
 		System.out.println("Job " + jobID + " status: "
@@ -501,21 +495,20 @@ public class JSonRequestor {
 				getJobObj = new Gson().fromJson(getJobJSON, jobGet.class);
 				System.out.println("Job " + jobID + " status: "
 						+ getJobObj.getStatus().toString());
-				
-				readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
-						+ ".sum@+" + fileByteIdx );
+
+				readfile.setPath(rfile + "/" + fileBasename + "/"
+						+ fileBasename + ".sum@+" + fileByteIdx);
 				json4 = g.toJson(readfile);
-				monFile = JSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("^\"|\"$", "");
-				if(monFile.startsWith("Unable")){
-					monFile = "";	
-					}
-				else{
-					
-				
-				output.append(monFile.replaceAll("\\\\n",
-						System.getProperty("line.separator")));
-				System.out.println("FILE INDEX:" + fileByteIdx);
-				fileByteIdx += countLines(monFile, "\\\\n");
+				monFile = JSonRequestor.doRequest(json4, cmURL, cookies)
+						.replaceAll("^\"|\"$", "");
+				if (monFile.startsWith("Unable")) {
+					monFile = "";
+				} else {
+
+					output.append(monFile.replaceAll("\\\\n",
+							System.getProperty("line.separator")));
+					System.out.println("FILE INDEX:" + fileByteIdx);
+					fileByteIdx += countLines(monFile, "\\\\n");
 				}
 				Thread.sleep(Constants.STATUS_CHECK_INTERVAL);
 			} catch (InterruptedException ex) {
@@ -528,36 +521,32 @@ public class JSonRequestor {
 		String json_out = gson_nice.toJson(getJobJSON);
 		System.out.println(json_out);
 		System.out.println("JSON Request No. 5 " + json4);
-		
+
 		readfile.setPath(rfile + "/" + fileBasename + "/" + fileBasename
-				+ ".sum@+" + fileByteIdx );
+				+ ".sum@+" + fileByteIdx);
 		json4 = g.toJson(readfile);
-		monFile = JSonRequestor.doRequest(json4, cmURL, cookies).replaceAll("^\"|\"$", "");
-		if(monFile.startsWith("Unable")){
-			monFile = "";	
-			}
-		else{
-			
-		
-		output.append(monFile.replaceAll("\\\\n",
-				System.getProperty("line.separator")));
-		fileByteIdx += countLines(monFile, "\\\\n");
+		monFile = JSonRequestor.doRequest(json4, cmURL, cookies).replaceAll(
+				"^\"|\"$", "");
+		if (monFile.startsWith("Unable")) {
+			monFile = "";
+		} else {
+
+			output.append(monFile.replaceAll("\\\\n",
+					System.getProperty("line.separator")));
+			fileByteIdx += countLines(monFile, "\\\\n");
 		}
 		System.out.println("FILE INDEX:" + fileByteIdx);
-		
-/*		System.out.print("Monitoring file: "
-				+ monFile.replaceAll("\\n",
-						System.getProperty("line.separator")));
-		try {
-			FileUtils.writeStringToFile(
-					new File(chooser.getCurrentDirectory().toString()
-							+ File.separator + fileBasename + ".sum.txt"),
-					monFile.replaceAll("\\n",
-							System.getProperty("line.separator")));
-		} catch (IOException e) {
 
-			e.printStackTrace();
-		}*/
+		/*
+		 * System.out.print("Monitoring file: " + monFile.replaceAll("\\n",
+		 * System.getProperty("line.separator"))); try {
+		 * FileUtils.writeStringToFile( new
+		 * File(chooser.getCurrentDirectory().toString() + File.separator +
+		 * fileBasename + ".sum.txt"), monFile.replaceAll("\\n",
+		 * System.getProperty("line.separator"))); } catch (IOException e) {
+		 * 
+		 * e.printStackTrace(); }
+		 */
 
 		if (getJobObj.getStatus().toString().equals("COMPLETED")) {
 			String[] zipArgs_from = new String[] {
@@ -569,10 +558,6 @@ public class JSonRequestor {
 							+ "_out.zip", zipArgs_from[1], rfile, fileBasename };
 			com.bright.utils.ScpFrom.main(myarg_from);
 
-			
-
-			
-			
 			JOptionPane optionPaneS = new JOptionPane(
 					"Job execution completed without errors!");
 			JDialog myDialogS = optionPaneS.createDialog(null, "Job status: ");
@@ -585,27 +570,24 @@ public class JSonRequestor {
 			myDialogF.setModal(false);
 			myDialogF.setVisible(true);
 		}
-		
+
 		try {
-			System.out.println("Local monitoring file: " +  filename);
-			
-			  BufferedWriter out = new BufferedWriter(
-			                       new FileWriter(filename));
-			  String outText = output.toString();
-			  String newString = outText.replace("\\\\n", nl);
-			  
-			  System.out.println("Text: " + outText);
-			  out.write(newString);
-		
-			  out.close();
-			  rmDuplicateLines.main(filename);
-			    }
-			catch (IOException e)
-			    {
-			    e.printStackTrace();
-			    }
+			System.out.println("Local monitoring file: " + filename);
+
+			BufferedWriter out = new BufferedWriter(new FileWriter(filename));
+			String outText = output.toString();
+			String newString = outText.replace("\\\\n", nl);
+
+			System.out.println("Text: " + outText);
+			out.write(newString);
+
+			out.close();
+			rmDuplicateLines.main(filename);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		doLogout(cmURL, cookies);
-        System.exit(0);
+		System.exit(0);
 	}
 
 }
