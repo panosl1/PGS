@@ -10,6 +10,7 @@
 
 package com.bright.json;
 
+import com.bright.cmcall.cmDevice;
 import com.bright.cmcall.cmLogin;
 import com.bright.cmcall.cmMain;
 import com.bright.cmcall.cmLogout;
@@ -82,6 +83,10 @@ import org.apache.http.cookie.Cookie;
 
 
 
+
+
+
+import com.bright.utils.Delete;
 import com.bright.utils.rmDuplicateLines;
 
 @SuppressWarnings("deprecation")
@@ -406,6 +411,143 @@ public class PGS {
 		Map<String, Long> partitions = UniqueKeyMap(cmURL, "cmpart","getPartitions", cookies);
 		
 		System.out.println(categories.get("default"));
+		
+		cmDevice newnode = new cmDevice();
+		cmDevice.deviceObject devObj = new cmDevice.deviceObject();
+		cmDevice.switchObject switchObj = new cmDevice.switchObject();
+		cmDevice.netObject netObj = new cmDevice.netObject();
+		
+		List<String> emptyslist = new  ArrayList<String>();
+		
+		
+		newnode.setService("cmdevice");
+		newnode.setCall("addDevice");
+		
+		
+	
+			
+			netObj.setBaseType("NetworkInterface");
+           
+			netObj.setCardType("Ethernet");
+			netObj.setChildType("NetworkPhysicalInterface");
+			netObj.setDhcp(false);
+			netObj.setIp("10.141.0.62");
+			netObj.setMac("00:00:00:00:00:00");
+			netObj.setModified(true);
+			netObj.setName("BOOTIF");
+			netObj.setNetwork(networks.get("internalnet"));
+			netObj.setOldLocalUniqueKey(0L);
+			netObj.setRevision("");
+			netObj.setSpeed("1Gb/s");
+			netObj.setStartIf("ALWAYS");
+			netObj.setToBeRemoved(false);
+			netObj.setUniqueKey(234568L);
+			netObj.setAdditionalHostnames(emptyslist);
+        
+		
+		
+		
+		devObj.setBaseType("Device");
+		devObj.setCreationTime(0L);
+		devObj.setCustomPingScript("");
+		devObj.setCustomPingScriptArgument("");
+		devObj.setCustomPowerScript("");
+		devObj.setCustomPowerScriptArgument("");
+		devObj.setCustomRemoteConsoleScript("");
+        devObj.setCustomRemoteConsoleScriptArgument("");
+		devObj.setDatanode(false);
+		devObj.setDisksetup("");
+		devObj.setBmcPowerResetDelay(0L);
+		devObj.setBurning(false);
+		devObj.setExcludeListFull("");
+		devObj.setExcludeListGrab("");
+		devObj.setExcludeListGrabnew("");
+		devObj.setExcludeListManipulateScript("");
+		devObj.setExcludeListSync("");
+		devObj.setExcludeListUpdate("");
+		devObj.setFinalize("");
+
+		devObj.setIndexInsideContainer(0L);
+		devObj.setInitialize("");
+		devObj.setInstallBootRecord(false);
+		devObj.setInstallMode("");
+		devObj.setIoScheduler("");
+		devObj.setLastProvisioningNode(0L);
+		devObj.setMac("00:00:00:00:00:00");
+    
+		devObj.setModified(true);
+		devObj.setCategory(categories.get("default"));
+		devObj.setChildType("PhysicalNode");
+		devObj.setDatanode(false);
+		devObj.setHostname("excelnode002");
+		devObj.setModified(true);
+		devObj.setPartition(partitions.get("base"));
+		devObj.setUseExclusivelyFor("Category");
+		
+		devObj.setNextBootInstallMode("");
+		devObj.setNotes("");
+		devObj.setOldLocalUniqueKey(0L);
+
+		devObj.setPowerControl("none");
+		devObj.setManagementNetwork(0L);
+
+		devObj.setProvisioningNetwork(234568L);
+		devObj.setProvisioningTransport("RSYNCDAEMON");
+		devObj.setPxelabel("");
+//        "rack": 90194313218,
+//        "rackHeight": 1,
+//        "rackPosition": 4,
+		devObj.setRaidconf("");
+		devObj.setRevision("");
+
+		devObj.setSoftwareImageProxy(null);
+		devObj.setStartNewBurn(false);
+
+		devObj.setTag("00000000a000");
+		devObj.setToBeRemoved(false);
+		//devObj.setUcsInfoConfigured(null);
+		devObj.setUniqueKey(12345L);
+
+		devObj.setUserdefined1("");
+		devObj.setUserdefined2("");
+		
+		
+		ArrayList<Object> mylist = new ArrayList<Object>();
+		
+		ArrayList<cmDevice.netObject> mylist2 = new ArrayList<cmDevice.netObject>();
+		ArrayList<Object> emptylist = new ArrayList<Object>();
+	
+		devObj.setNetworks(mylist2);
+		devObj.setFsexports(emptylist);
+		devObj.setFsmounts(emptylist);
+		devObj.setGpuSettings(emptylist);
+		devObj.setFspartAssociations(emptylist);
+		
+		devObj.setPowerDistributionUnits(emptyslist);
+
+		devObj.setRoles(emptylist);
+		devObj.setServices(emptylist);
+		devObj.setStaticRoutes(emptylist);
+
+		
+		mylist2.add(netObj);
+		
+		mylist.add(devObj);
+		mylist.add(1234567123);
+		newnode.setArgs(mylist);
+		
+		GsonBuilder builder = new GsonBuilder();
+		builder.enableComplexMapKeySerialization();
+
+		// Gson g = new Gson();
+		Gson g = builder.create();
+
+		String json2 = g.toJson(newnode);
+
+		// To be used from a real console and not Eclipse
+		
+		String message = JSonRequestor.doRequest(json2, cmURL, cookies);
+		
 		
 		doLogout(cmURL, cookies);
 		System.exit(0);

@@ -11,6 +11,7 @@
 package com.bright.cmcall;
 
 import java.util.List;
+
 @SuppressWarnings("unused")
 public class cmProc {
 
@@ -31,7 +32,7 @@ public class cmProc {
 	public void setCall(String call) {
 		this.call = call;
 	}
-	
+
 	public static class runcmdObject {
 
 		private int priority;
