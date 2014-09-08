@@ -34,15 +34,16 @@ public class rmDuplicateLines {
 				List<String> content = FileUtils.readLines(monfile,
 						Charset.forName("UTF-8"));
 				userIdSet.addAll(content);
-				
-		        Iterator<String> itr =userIdSet.iterator();
-		        StringBuffer output = new StringBuffer();
-		        while(itr.hasNext()){
-		        
-		        	output.append(itr.next() +  System.getProperty("line.separator"));		     
-		        		
-		        }
-				
+
+				Iterator<String> itr = userIdSet.iterator();
+				StringBuffer output = new StringBuffer();
+				while (itr.hasNext()) {
+
+					output.append(itr.next()
+							+ System.getProperty("line.separator"));
+
+				}
+
 				BufferedWriter out = new BufferedWriter(new FileWriter(monfile));
 				String outText = output.toString();
 

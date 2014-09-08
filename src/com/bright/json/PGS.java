@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2004-2013 Bright Computing, Inc. All Rights Reserved.
-*
-* This software is the confidential and proprietary information of
-* Bright Computing, Inc. ("Confidential Information").  You shall not
-* disclose such Confidential Information and shall use it only in
-* accordance with the terms of the license agreement you entered into
-* with Bright Computing, Inc.
-*/
+ *
+ * This software is the confidential and proprietary information of
+ * Bright Computing, Inc. ("Confidential Information").  You shall not
+ * disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the license agreement you entered into
+ * with Bright Computing, Inc.
+ */
 
 package com.bright.json;
 
@@ -74,17 +74,6 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.cookie.Cookie;
-
-
-
-
-
-
-
-
-
-
-
 
 import com.bright.utils.Delete;
 import com.bright.utils.rmDuplicateLines;
@@ -296,7 +285,9 @@ public class PGS {
 		int count = text.split(search).length - 1;
 		return count;
 	}
-	public static Map<String, Long>  UniqueKeyMap(String cmURL, String cmService, String cmCall, List<Cookie> cookies) {
+
+	public static Map<String, Long> UniqueKeyMap(String cmURL,
+			String cmService, String cmCall, List<Cookie> cookies) {
 		// Logout and purge cookie on server
 		cmMain catreq = new cmMain();
 		catreq.setService(cmService);
@@ -308,29 +299,37 @@ public class PGS {
 		String ver_string = doRequest(json, cmURL, cookies);
 
 		Gson gson = new Gson();
-	
-		Type listType = new TypeToken<List<cmUniqueKeyMap>>(){}.getType();
-		
-		//Need to de-serialize JSON as array in GSON
+
+		Type listType = new TypeToken<List<cmUniqueKeyMap>>() {
+		}.getType();
+
+		// Need to de-serialize JSON as array in GSON
 		List<cmUniqueKeyMap> catlist = g.fromJson(ver_string, listType);
 		System.out.println("Version JSON String " + ver_string);
 
-		Map<String, Long> map = new HashMap<String, Long>(catlist.size()); // the size of the map will be the size of the list.
-		for(cmUniqueKeyMap e: catlist) {
-		  map.put(e.getName(), e.getUniqueKey());
-		  
+		Map<String, Long> map = new HashMap<String, Long>(catlist.size()); // the
+																			// size
+																			// of
+																			// the
+																			// map
+																			// will
+																			// be
+																			// the
+																			// size
+																			// of
+																			// the
+																			// list.
+		for (cmUniqueKeyMap e : catlist) {
+			map.put(e.getName(), e.getUniqueKey());
+
 		}
 
-        return map;
-		}
+		return map;
+	}
 
-	
-	
-	
-	
 	public static void main(String[] args) {
 		String fileBasename = null;
-		
+
 		JFileChooser chooser = new JFileChooser("/Users/panos/STR_GRID");
 		try {
 
@@ -356,8 +355,6 @@ public class PGS {
 										.lastIndexOf(File.separator) + 1);
 				System.out.println("Base name: " + fileBasename);
 
-
-
 			} else {
 				System.out.println("No Selection ");
 
@@ -375,7 +372,6 @@ public class PGS {
 		// TextPrompt puiUser = new TextPrompt("root", uiUser);
 		JTextField uiPass = new JPasswordField("x5deix5dei");
 		// TextPrompt puiPass = new TextPrompt("x5deix5dei", uiPass);
-		
 
 		JPanel myPanel = new JPanel(new GridLayout(5, 1));
 		myPanel.add(new JLabel("Bright HeadNode hostname:"));
@@ -385,7 +381,6 @@ public class PGS {
 		myPanel.add(uiUser);
 		myPanel.add(new JLabel("Password:"));
 		myPanel.add(uiPass);
-		
 
 		int result = JOptionPane.showConfirmDialog(null, myPanel,
 				"Please fill in all the fields.", JOptionPane.OK_CANCEL_OPTION);
@@ -394,59 +389,51 @@ public class PGS {
 
 		}
 
-	
 		String rhost = uiHost.getText();
 		String ruser = uiUser.getText();
 		String rpass = uiPass.getText();
-		
-
-
 
 		String cmURL = "https://" + rhost + ":8081/json";
 		List<Cookie> cookies = doLogin(ruser, rpass, cmURL);
 		chkVersion(cmURL, cookies);
-		
-		Map<String, Long> categories = UniqueKeyMap(cmURL, "cmdevice","getCategories", cookies);
-		Map<String, Long> networks = UniqueKeyMap(cmURL, "cmnet","getNetworks", cookies);
-		Map<String, Long> partitions = UniqueKeyMap(cmURL, "cmpart","getPartitions", cookies);
-		
+
+		Map<String, Long> categories = UniqueKeyMap(cmURL, "cmdevice",
+				"getCategories", cookies);
+		Map<String, Long> networks = UniqueKeyMap(cmURL, "cmnet",
+				"getNetworks", cookies);
+		Map<String, Long> partitions = UniqueKeyMap(cmURL, "cmpart",
+				"getPartitions", cookies);
+
 		System.out.println(categories.get("default"));
-		
+
 		cmDevice newnode = new cmDevice();
 		cmDevice.deviceObject devObj = new cmDevice.deviceObject();
 		cmDevice.switchObject switchObj = new cmDevice.switchObject();
 		cmDevice.netObject netObj = new cmDevice.netObject();
-		
-		List<String> emptyslist = new  ArrayList<String>();
-		
-		
+
+		List<String> emptyslist = new ArrayList<String>();
+
 		newnode.setService("cmdevice");
 		newnode.setCall("addDevice");
-		
-		
-	
-			
-			netObj.setBaseType("NetworkInterface");
-           
-			netObj.setCardType("Ethernet");
-			netObj.setChildType("NetworkPhysicalInterface");
-			netObj.setDhcp(false);
-			netObj.setIp("10.141.0.62");
-			netObj.setMac("00:00:00:00:00:00");
-			netObj.setModified(true);
-			netObj.setName("BOOTIF");
-			netObj.setNetwork(networks.get("internalnet"));
-			netObj.setOldLocalUniqueKey(0L);
-			netObj.setRevision("");
-			netObj.setSpeed("1Gb/s");
-			netObj.setStartIf("ALWAYS");
-			netObj.setToBeRemoved(false);
-			netObj.setUniqueKey(234568L);
-			netObj.setAdditionalHostnames(emptyslist);
-        
-		
-		
-		
+
+		netObj.setBaseType("NetworkInterface");
+
+		netObj.setCardType("Ethernet");
+		netObj.setChildType("NetworkPhysicalInterface");
+		netObj.setDhcp(false);
+		netObj.setIp("10.141.0.62");
+		netObj.setMac("00:00:00:00:00:00");
+		netObj.setModified(true);
+		netObj.setName("BOOTIF");
+		netObj.setNetwork(networks.get("internalnet"));
+		netObj.setOldLocalUniqueKey(0L);
+		netObj.setRevision("");
+		netObj.setSpeed("1Gb/s");
+		netObj.setStartIf("ALWAYS");
+		netObj.setToBeRemoved(false);
+		netObj.setUniqueKey(234568L);
+		netObj.setAdditionalHostnames(emptyslist);
+
 		devObj.setBaseType("Device");
 		devObj.setCreationTime(0L);
 		devObj.setCustomPingScript("");
@@ -454,7 +441,7 @@ public class PGS {
 		devObj.setCustomPowerScript("");
 		devObj.setCustomPowerScriptArgument("");
 		devObj.setCustomRemoteConsoleScript("");
-        devObj.setCustomRemoteConsoleScriptArgument("");
+		devObj.setCustomRemoteConsoleScriptArgument("");
 		devObj.setDatanode(false);
 		devObj.setDisksetup("");
 		devObj.setBmcPowerResetDelay(0L);
@@ -474,7 +461,7 @@ public class PGS {
 		devObj.setIoScheduler("");
 		devObj.setLastProvisioningNode(0L);
 		devObj.setMac("00:00:00:00:00:00");
-    
+
 		devObj.setModified(true);
 		devObj.setCategory(categories.get("default"));
 		devObj.setChildType("PhysicalNode");
@@ -483,7 +470,7 @@ public class PGS {
 		devObj.setModified(true);
 		devObj.setPartition(partitions.get("base"));
 		devObj.setUseExclusivelyFor("Category");
-		
+
 		devObj.setNextBootInstallMode("");
 		devObj.setNotes("");
 		devObj.setOldLocalUniqueKey(0L);
@@ -494,9 +481,9 @@ public class PGS {
 		devObj.setProvisioningNetwork(234568L);
 		devObj.setProvisioningTransport("RSYNCDAEMON");
 		devObj.setPxelabel("");
-//        "rack": 90194313218,
-//        "rackHeight": 1,
-//        "rackPosition": 4,
+		// "rack": 90194313218,
+		// "rackHeight": 1,
+		// "rackPosition": 4,
 		devObj.setRaidconf("");
 		devObj.setRevision("");
 
@@ -505,37 +492,35 @@ public class PGS {
 
 		devObj.setTag("00000000a000");
 		devObj.setToBeRemoved(false);
-		//devObj.setUcsInfoConfigured(null);
+		// devObj.setUcsInfoConfigured(null);
 		devObj.setUniqueKey(12345L);
 
 		devObj.setUserdefined1("");
 		devObj.setUserdefined2("");
-		
-		
+
 		ArrayList<Object> mylist = new ArrayList<Object>();
-		
+
 		ArrayList<cmDevice.netObject> mylist2 = new ArrayList<cmDevice.netObject>();
 		ArrayList<Object> emptylist = new ArrayList<Object>();
-	
+
 		devObj.setNetworks(mylist2);
 		devObj.setFsexports(emptylist);
 		devObj.setFsmounts(emptylist);
 		devObj.setGpuSettings(emptylist);
 		devObj.setFspartAssociations(emptylist);
-		
+
 		devObj.setPowerDistributionUnits(emptyslist);
 
 		devObj.setRoles(emptylist);
 		devObj.setServices(emptylist);
 		devObj.setStaticRoutes(emptylist);
 
-		
 		mylist2.add(netObj);
-		
+
 		mylist.add(devObj);
 		mylist.add(1234567123);
 		newnode.setArgs(mylist);
-		
+
 		GsonBuilder builder = new GsonBuilder();
 		builder.enableComplexMapKeySerialization();
 
@@ -545,10 +530,9 @@ public class PGS {
 		String json2 = g.toJson(newnode);
 
 		// To be used from a real console and not Eclipse
-		
+
 		String message = JSonRequestor.doRequest(json2, cmURL, cookies);
-		
-		
+
 		doLogout(cmURL, cookies);
 		System.exit(0);
 	}

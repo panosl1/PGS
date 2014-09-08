@@ -183,7 +183,7 @@ public class ScpFrom {
 
 			((ChannelExec) channel1).setErrStream(System.err);
 
-			//InputStream in1 = channel1.getInputStream();
+			// InputStream in1 = channel1.getInputStream();
 
 			channel1.connect();
 
@@ -211,7 +211,6 @@ public class ScpFrom {
 			System.out
 					.print("Transferred file " + arg[1] + " to local system.");
 
-			
 		} catch (Exception e) {
 			System.out.println(e);
 			try {
