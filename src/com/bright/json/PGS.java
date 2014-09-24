@@ -23,6 +23,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,7 +41,10 @@ import java.util.Scanner;
 import java.awt.GridLayout;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.InputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -68,12 +80,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.cookie.Cookie;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
 import com.bright.utils.Delete;
 import com.bright.utils.rmDuplicateLines;
@@ -327,16 +342,18 @@ public class PGS {
 		return map;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		String fileBasename = null;
 
-		JFileChooser chooser = new JFileChooser("/Users/panos/STR_GRID");
+		JFileChooser chooser = new JFileChooser();
 		try {
+		    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+		            "Excel Spreadsheets", "xls", "xlsx");
+		        chooser.setFileFilter(filter);
+			chooser.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
+			chooser.setDialogTitle("Select the Excel file");
 
-			chooser.setCurrentDirectory(new java.io.File("."));
-			chooser.setDialogTitle("Select the input directory");
-
-			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			chooser.setAcceptAllFileFilterUsed(false);
 
 			if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -364,7 +381,32 @@ public class PGS {
 			System.out.println(e.toString());
 
 		}
-
+        String fileName = chooser.getSelectedFile().toString();
+		InputStream inp = new FileInputStream(fileName);
+		Workbook workbook = null;
+        if(fileName.toLowerCase().endsWith("xlsx")){
+            try {
+				workbook = new XSSFWorkbook(inp);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }else if(fileName.toLowerCase().endsWith("xls")){
+            try {
+				workbook = new HSSFWorkbook(inp);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
+		
+        Sheet nodeSheet = workbook.getSheet("Devices");
+        Sheet interfaceSheet = workbook.getSheet("Interfaces");
+        System.out.println("Read nodes sheet.");
+        Row row = nodeSheet.getRow(1);
+        System.out.println(row.getCell(0).toString());
+        System.exit(0);
+		
 		JTextField uiHost = new JTextField("demo.brightcomputing.com");
 		// TextPrompt puiHost = new
 		// TextPrompt("demo.brightcomputing.com",uiHost);
@@ -403,7 +445,8 @@ public class PGS {
 				"getNetworks", cookies);
 		Map<String, Long> partitions = UniqueKeyMap(cmURL, "cmpart",
 				"getPartitions", cookies);
-
+		Map<String, Long> racks = UniqueKeyMap(cmURL, "cmpart",
+				"getRacks", cookies);
 		System.out.println(categories.get("default"));
 
 		cmDevice newnode = new cmDevice();

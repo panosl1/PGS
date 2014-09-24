@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre8"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/commons-codec-1.6.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/commons-logging-1.1.1.jar"/>
@@ -11,5 +11,16 @@
 	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/httpcore-4.2.4.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/httpmime-4.2.5.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/jsch-0.1.50.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/poi-3.10.1/poi-3.10.1-20140818.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/poi-3.10.1/poi-ooxml-3.10.1-20140818.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/poi-3.10.1/poi-ooxml-schemas-3.10.1-20140818.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/poi-3.10.1/poi-scratchpad-3.10.1-20140818.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/poi-3.10.1/lib/commons-codec-1.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/poi-3.10.1/lib/commons-logging-1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/poi-3.10.1/lib/junit-4.11.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/poi-3.10.1/lib/log4j-1.2.13.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/poi-3.10.1/ooxml-lib/dom4j-1.6.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/poi-3.10.1/ooxml-lib/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Panos/Desktop/Clojure/lib/poi-3.10.1/ooxml-lib/xmlbeans-2.6.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
