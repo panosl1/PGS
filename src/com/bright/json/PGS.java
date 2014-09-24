@@ -403,9 +403,9 @@ public class PGS {
         Sheet nodeSheet = workbook.getSheet("Devices");
         Sheet interfaceSheet = workbook.getSheet("Interfaces");
         System.out.println("Read nodes sheet.");
-        Row row = nodeSheet.getRow(1);
-        System.out.println(row.getCell(0).toString());
-        System.exit(0);
+        //Row nodeRow = nodeSheet.getRow(1);
+        //System.out.println(row.getCell(0).toString());
+        //System.exit(0);
 		
 		JTextField uiHost = new JTextField("demo.brightcomputing.com");
 		// TextPrompt puiHost = new
@@ -456,26 +456,31 @@ public class PGS {
 
 		List<String> emptyslist = new ArrayList<String>();
 
+		Row nodeRow = nodeSheet.getRow(1);
+		Row ifRow = interfaceSheet.getRow(1);
+        //System.out.println(nodeRow.getCell(0).toString());
+		//nodeRow.getCell(3).getStringCellValue()
+		
 		newnode.setService("cmdevice");
 		newnode.setCall("addDevice");
 
 		netObj.setBaseType("NetworkInterface");
 
-		netObj.setCardType("Ethernet");
-		netObj.setChildType("NetworkPhysicalInterface");
-		netObj.setDhcp(false);
-		netObj.setIp("10.141.0.62");
-		netObj.setMac("00:00:00:00:00:00");
+		netObj.setCardType(ifRow.getCell(3).getStringCellValue());
+		netObj.setChildType(ifRow.getCell(4).getStringCellValue());
+		netObj.setDhcp((ifRow.getCell(5).getNumericCellValue() > 0.1) ? true : false);
+		netObj.setIp(ifRow.getCell(7).getStringCellValue());
+		//netObj.setMac(ifRow.getCell(0).toString());
 		netObj.setModified(true);
-		netObj.setName("BOOTIF");
-		netObj.setNetwork(networks.get("internalnet"));
+		netObj.setName(ifRow.getCell(1).getStringCellValue());
+		netObj.setNetwork(networks.get(ifRow.getCell(6).getStringCellValue()));
 		netObj.setOldLocalUniqueKey(0L);
 		netObj.setRevision("");
-		netObj.setSpeed("1Gb/s");
+		netObj.setSpeed(ifRow.getCell(9).getStringCellValue());
 		netObj.setStartIf("ALWAYS");
 		netObj.setToBeRemoved(false);
-		netObj.setUniqueKey(234568L);
-		netObj.setAdditionalHostnames(emptyslist);
+		netObj.setUniqueKey((long) ifRow.getCell(2).getNumericCellValue());
+		//netObj.setAdditionalHostnames(emptyslist);
 
 		devObj.setBaseType("Device");
 		devObj.setCreationTime(0L);
@@ -485,7 +490,7 @@ public class PGS {
 		devObj.setCustomPowerScriptArgument("");
 		devObj.setCustomRemoteConsoleScript("");
 		devObj.setCustomRemoteConsoleScriptArgument("");
-		devObj.setDatanode(false);
+		devObj.setDatanode((0 > 0.1) ? true : false);
 		devObj.setDisksetup("");
 		devObj.setBmcPowerResetDelay(0L);
 		devObj.setBurning(false);
@@ -503,15 +508,15 @@ public class PGS {
 		devObj.setInstallMode("");
 		devObj.setIoScheduler("");
 		devObj.setLastProvisioningNode(0L);
-		devObj.setMac("00:00:00:00:00:00");
+		devObj.setMac(nodeRow.getCell(6).getStringCellValue());
 
 		devObj.setModified(true);
-		devObj.setCategory(categories.get("default"));
+		devObj.setCategory(categories.get(nodeRow.getCell(1).getStringCellValue()));
 		devObj.setChildType("PhysicalNode");
 		devObj.setDatanode(false);
-		devObj.setHostname("excelnode002");
+		devObj.setHostname(nodeRow.getCell(0).getStringCellValue());
 		devObj.setModified(true);
-		devObj.setPartition(partitions.get("base"));
+		devObj.setPartition(partitions.get(nodeRow.getCell(2).getStringCellValue()));
 		devObj.setUseExclusivelyFor("Category");
 
 		devObj.setNextBootInstallMode("");
@@ -521,7 +526,7 @@ public class PGS {
 		devObj.setPowerControl("none");
 		devObj.setManagementNetwork(0L);
 
-		devObj.setProvisioningNetwork(234568L);
+		devObj.setProvisioningNetwork(1L);
 		devObj.setProvisioningTransport("RSYNCDAEMON");
 		devObj.setPxelabel("");
 		// "rack": 90194313218,
@@ -536,7 +541,7 @@ public class PGS {
 		devObj.setTag("00000000a000");
 		devObj.setToBeRemoved(false);
 		// devObj.setUcsInfoConfigured(null);
-		devObj.setUniqueKey(12345L);
+		//devObj.setUniqueKey(12345L);
 
 		devObj.setUserdefined1("");
 		devObj.setUserdefined2("");
@@ -561,7 +566,7 @@ public class PGS {
 		mylist2.add(netObj);
 
 		mylist.add(devObj);
-		mylist.add(1234567123);
+		mylist.add(1);
 		newnode.setArgs(mylist);
 
 		GsonBuilder builder = new GsonBuilder();
