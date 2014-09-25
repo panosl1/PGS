@@ -73,7 +73,7 @@ public class cmDevice {
 		private Long provisioningNetwork;
 		private String provisioningTransport;
 		private String pxelabel;
-		private String rack;
+		private Long rack;
 		private Long rackHeight;
 		private Long rackPosition;
 		private String raidconf;
@@ -481,11 +481,11 @@ public class cmDevice {
 			this.pxelabel = pxelabel;
 		}
 
-		public String getRack() {
+		public Long getRack() {
 			return rack;
 		}
 
-		public void setRack(String rack) {
+		public void setRack(Long rack) {
 			this.rack = rack;
 		}
 

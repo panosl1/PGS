@@ -87,9 +87,6 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.cookie.Cookie;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-
 import com.bright.utils.Delete;
 import com.bright.utils.rmDuplicateLines;
 
@@ -154,7 +151,7 @@ public class PGS {
 			httppost.setEntity(stringEntity);
 
 			System.out
-					.println("executing request " + httppost.getRequestLine());
+			.println("executing request " + httppost.getRequestLine());
 			HttpResponse response = httpclient.execute(httppost, localContext);
 
 			System.out.println(response + "\n");
@@ -323,20 +320,27 @@ public class PGS {
 		System.out.println("Version JSON String " + ver_string);
 
 		Map<String, Long> map = new HashMap<String, Long>(catlist.size()); // the
-																			// size
-																			// of
-																			// the
-																			// map
-																			// will
-																			// be
-																			// the
-																			// size
-																			// of
-																			// the
-																			// list.
+		// size
+		// of
+		// the
+		// map
+		// will
+		// be
+		// the
+		// size
+		// of
+		// the
+		// list.
+		System.out.println("Service: "+ cmService);
 		for (cmUniqueKeyMap e : catlist) {
-			map.put(e.getName(), e.getUniqueKey());
+			if (cmCall.equals("getEthernetSwitches")) {
+				map.put(e.getHostname(), e.getUniqueKey());
+				System.out.println("Hostname: "+ e.getHostname());
+				System.out.println("HKey: "+ e.getUniqueKey());
 
+			} else {
+				map.put(e.getName(), e.getUniqueKey());
+			}
 		}
 
 		return map;
@@ -347,10 +351,11 @@ public class PGS {
 
 		JFileChooser chooser = new JFileChooser();
 		try {
-		    FileNameExtensionFilter filter = new FileNameExtensionFilter(
-		            "Excel Spreadsheets", "xls", "xlsx");
-		        chooser.setFileFilter(filter);
-			chooser.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
+			FileNameExtensionFilter filter = new FileNameExtensionFilter(
+					"Excel Spreadsheets", "xls", "xlsx");
+			chooser.setFileFilter(filter);
+			chooser.setCurrentDirectory(new java.io.File(System
+					.getProperty("user.home")));
 			chooser.setDialogTitle("Select the Excel file");
 
 			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -369,7 +374,7 @@ public class PGS {
 						.toString()
 						.substring(
 								chooser.getSelectedFile().toString()
-										.lastIndexOf(File.separator) + 1);
+								.lastIndexOf(File.separator) + 1);
 				System.out.println("Base name: " + fileBasename);
 
 			} else {
@@ -381,32 +386,32 @@ public class PGS {
 			System.out.println(e.toString());
 
 		}
-        String fileName = chooser.getSelectedFile().toString();
+		String fileName = chooser.getSelectedFile().toString();
 		InputStream inp = new FileInputStream(fileName);
 		Workbook workbook = null;
-        if(fileName.toLowerCase().endsWith("xlsx")){
-            try {
+		if (fileName.toLowerCase().endsWith("xlsx")) {
+			try {
 				workbook = new XSSFWorkbook(inp);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        }else if(fileName.toLowerCase().endsWith("xls")){
-            try {
+		} else if (fileName.toLowerCase().endsWith("xls")) {
+			try {
 				workbook = new HSSFWorkbook(inp);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        }
-		
-        Sheet nodeSheet = workbook.getSheet("Devices");
-        Sheet interfaceSheet = workbook.getSheet("Interfaces");
-        System.out.println("Read nodes sheet.");
-        //Row nodeRow = nodeSheet.getRow(1);
-        //System.out.println(row.getCell(0).toString());
-        //System.exit(0);
-		
+		}
+
+		Sheet nodeSheet = workbook.getSheet("Devices");
+		Sheet interfaceSheet = workbook.getSheet("Interfaces");
+		System.out.println("Read nodes sheet.");
+		// Row nodeRow = nodeSheet.getRow(1);
+		// System.out.println(row.getCell(0).toString());
+		// System.exit(0);
+
 		JTextField uiHost = new JTextField("demo.brightcomputing.com");
 		// TextPrompt puiHost = new
 		// TextPrompt("demo.brightcomputing.com",uiHost);
@@ -445,10 +450,13 @@ public class PGS {
 				"getNetworks", cookies);
 		Map<String, Long> partitions = UniqueKeyMap(cmURL, "cmpart",
 				"getPartitions", cookies);
-		Map<String, Long> racks = UniqueKeyMap(cmURL, "cmpart",
-				"getRacks", cookies);
-		System.out.println(categories.get("default"));
-
+		Map<String, Long> racks = UniqueKeyMap(cmURL, "cmpart", "getRacks",
+				cookies);
+		Map<String, Long> switches = UniqueKeyMap(cmURL, "cmdevice",
+				"getEthernetSwitches", cookies);
+		//System.out.println(switches.get("switch01"));
+		//System.out.println("Size of the map: "+ switches.size());
+        //System.exit(0);
 		cmDevice newnode = new cmDevice();
 		cmDevice.deviceObject devObj = new cmDevice.deviceObject();
 		cmDevice.switchObject switchObj = new cmDevice.switchObject();
@@ -458,19 +466,27 @@ public class PGS {
 
 		Row nodeRow = nodeSheet.getRow(1);
 		Row ifRow = interfaceSheet.getRow(1);
-        //System.out.println(nodeRow.getCell(0).toString());
-		//nodeRow.getCell(3).getStringCellValue()
-		
+		// System.out.println(nodeRow.getCell(0).toString());
+		// nodeRow.getCell(3).getStringCellValue()
+
 		newnode.setService("cmdevice");
 		newnode.setCall("addDevice");
 
+		switchObj.setEthernetSwitch(switches.get(nodeRow.getCell(8)
+				.getStringCellValue()));
+		System.out.println(nodeRow.getCell(8).getStringCellValue());
+		System.out.println(switches
+				.get(nodeRow.getCell(8).getStringCellValue()));
+		switchObj.setPrt((int) nodeRow.getCell(9).getNumericCellValue());
+		switchObj.setBaseType("SwitchPort");
 		netObj.setBaseType("NetworkInterface");
 
 		netObj.setCardType(ifRow.getCell(3).getStringCellValue());
 		netObj.setChildType(ifRow.getCell(4).getStringCellValue());
-		netObj.setDhcp((ifRow.getCell(5).getNumericCellValue() > 0.1) ? true : false);
+		netObj.setDhcp((ifRow.getCell(5).getNumericCellValue() > 0.1) ? true
+				: false);
 		netObj.setIp(ifRow.getCell(7).getStringCellValue());
-		//netObj.setMac(ifRow.getCell(0).toString());
+		// netObj.setMac(ifRow.getCell(0).toString());
 		netObj.setModified(true);
 		netObj.setName(ifRow.getCell(1).getStringCellValue());
 		netObj.setNetwork(networks.get(ifRow.getCell(6).getStringCellValue()));
@@ -480,20 +496,20 @@ public class PGS {
 		netObj.setStartIf("ALWAYS");
 		netObj.setToBeRemoved(false);
 		netObj.setUniqueKey((long) ifRow.getCell(2).getNumericCellValue());
-		//netObj.setAdditionalHostnames(emptyslist);
+		// netObj.setAdditionalHostnames(emptyslist);
 
 		devObj.setBaseType("Device");
-		devObj.setCreationTime(0L);
+		//devObj.setCreationTime(0L);
 		devObj.setCustomPingScript("");
 		devObj.setCustomPingScriptArgument("");
 		devObj.setCustomPowerScript("");
 		devObj.setCustomPowerScriptArgument("");
 		devObj.setCustomRemoteConsoleScript("");
 		devObj.setCustomRemoteConsoleScriptArgument("");
-		devObj.setDatanode((0 > 0.1) ? true : false);
 		devObj.setDisksetup("");
 		devObj.setBmcPowerResetDelay(0L);
 		devObj.setBurning(false);
+		devObj.setEthernetSwitch(switchObj);
 		devObj.setExcludeListFull("");
 		devObj.setExcludeListGrab("");
 		devObj.setExcludeListGrabnew("");
@@ -501,7 +517,9 @@ public class PGS {
 		devObj.setExcludeListSync("");
 		devObj.setExcludeListUpdate("");
 		devObj.setFinalize("");
-
+		devObj.setRack(racks.get(nodeRow.getCell(10).getStringCellValue()));
+		devObj.setRackHeight((long) nodeRow.getCell(11).getNumericCellValue());
+		devObj.setRackPosition((long) nodeRow.getCell(12).getNumericCellValue());
 		devObj.setIndexInsideContainer(0L);
 		devObj.setInitialize("");
 		devObj.setInstallBootRecord(false);
@@ -511,12 +529,15 @@ public class PGS {
 		devObj.setMac(nodeRow.getCell(6).getStringCellValue());
 
 		devObj.setModified(true);
-		devObj.setCategory(categories.get(nodeRow.getCell(1).getStringCellValue()));
+		devObj.setCategory(categories.get(nodeRow.getCell(1)
+				.getStringCellValue()));
 		devObj.setChildType("PhysicalNode");
-		devObj.setDatanode(false);
+		devObj.setDatanode((nodeRow.getCell(5).getNumericCellValue() > 0.1) ? true
+				: false);
 		devObj.setHostname(nodeRow.getCell(0).getStringCellValue());
 		devObj.setModified(true);
-		devObj.setPartition(partitions.get(nodeRow.getCell(2).getStringCellValue()));
+		devObj.setPartition(partitions.get(nodeRow.getCell(2)
+				.getStringCellValue()));
 		devObj.setUseExclusivelyFor("Category");
 
 		devObj.setNextBootInstallMode("");
@@ -541,7 +562,7 @@ public class PGS {
 		devObj.setTag("00000000a000");
 		devObj.setToBeRemoved(false);
 		// devObj.setUcsInfoConfigured(null);
-		//devObj.setUniqueKey(12345L);
+		// devObj.setUniqueKey(12345L);
 
 		devObj.setUserdefined1("");
 		devObj.setUserdefined2("");
