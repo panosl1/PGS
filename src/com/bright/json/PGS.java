@@ -14,22 +14,16 @@ import com.bright.cmcall.cmDevice;
 import com.bright.cmcall.cmLogin;
 import com.bright.cmcall.cmMain;
 import com.bright.cmcall.cmLogout;
-import com.bright.cmcall.cmReadFile;
 import com.bright.cmcall.cmUniqueKeyMap;
 import com.bright.cmcall.cmgetVersion;
-import com.bright.cmcall.jobGet;
-import com.bright.cmcall.jobSubmit;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.util.ArrayList;
@@ -39,11 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.awt.GridLayout;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.InputStream;
 
 import org.apache.http.HttpEntity;
@@ -87,8 +79,6 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.cookie.Cookie;
-import com.bright.utils.Delete;
-import com.bright.utils.rmDuplicateLines;
 
 @SuppressWarnings("deprecation")
 public class PGS {
@@ -310,8 +300,6 @@ public class PGS {
 
 		String ver_string = doRequest(json, cmURL, cookies);
 
-		Gson gson = new Gson();
-
 		Type listType = new TypeToken<List<cmUniqueKeyMap>>() {
 		}.getType();
 
@@ -331,12 +319,12 @@ public class PGS {
 		// of
 		// the
 		// list.
-		System.out.println("Service: "+ cmService);
+		System.out.println("Service: " + cmService);
 		for (cmUniqueKeyMap e : catlist) {
 			if (cmCall.equals("getEthernetSwitches")) {
 				map.put(e.getHostname(), e.getUniqueKey());
-				System.out.println("Hostname: "+ e.getHostname());
-				System.out.println("HKey: "+ e.getUniqueKey());
+				System.out.println("Hostname: " + e.getHostname());
+				System.out.println("HKey: " + e.getUniqueKey());
 
 			} else {
 				map.put(e.getName(), e.getUniqueKey());
@@ -347,6 +335,7 @@ public class PGS {
 	}
 
 	public static void main(String[] args) throws FileNotFoundException {
+
 		String fileBasename = null;
 
 		JFileChooser chooser = new JFileChooser();
@@ -417,7 +406,7 @@ public class PGS {
 		// TextPrompt("demo.brightcomputing.com",uiHost);
 		JTextField uiUser = new JTextField("root");
 		// TextPrompt puiUser = new TextPrompt("root", uiUser);
-		JTextField uiPass = new JPasswordField("x5deix5dei");
+		JTextField uiPass = new JPasswordField("");
 		// TextPrompt puiPass = new TextPrompt("x5deix5dei", uiPass);
 
 		JPanel myPanel = new JPanel(new GridLayout(5, 1));
@@ -454,156 +443,216 @@ public class PGS {
 				cookies);
 		Map<String, Long> switches = UniqueKeyMap(cmURL, "cmdevice",
 				"getEthernetSwitches", cookies);
-		//System.out.println(switches.get("switch01"));
-		//System.out.println("Size of the map: "+ switches.size());
-        //System.exit(0);
+		// System.out.println(switches.get("switch01"));
+		// System.out.println("Size of the map: "+ switches.size());
+		// System.exit(0);
 		cmDevice newnode = new cmDevice();
 		cmDevice.deviceObject devObj = new cmDevice.deviceObject();
 		cmDevice.switchObject switchObj = new cmDevice.switchObject();
-		cmDevice.netObject netObj = new cmDevice.netObject();
+		// cmDevice.netObject netObj = new cmDevice.netObject();
 
 		List<String> emptyslist = new ArrayList<String>();
 
-		Row nodeRow = nodeSheet.getRow(1);
-		Row ifRow = interfaceSheet.getRow(1);
+		// Row nodeRow = nodeSheet.getRow(1);
+		// Row ifRow = interfaceSheet.getRow(1);
 		// System.out.println(nodeRow.getCell(0).toString());
 		// nodeRow.getCell(3).getStringCellValue()
+		Map<String, ArrayList<cmDevice.netObject>> ifmap = new HashMap<String, ArrayList<cmDevice.netObject>>();
+		// Map<String,netObject> helperMap = new HashMap<String,netObject>();
+		// Iterator<Row> rows = interfaceSheet.rowIterator ();
+		// while (rows. < interfaceSheet.getPhysicalNumberOfRows()) {
 
-		newnode.setService("cmdevice");
-		newnode.setCall("addDevice");
+		// List<netObject> netList = new ArrayList<netObject>();
+		for (int i = 0; i < interfaceSheet.getPhysicalNumberOfRows(); i++) {
+			Row ifRow = interfaceSheet.getRow(i);
+			if (ifRow.getRowNum() == 0) {
+				continue; // just skip the rows if row number is 0
+			}
 
-		switchObj.setEthernetSwitch(switches.get(nodeRow.getCell(8)
-				.getStringCellValue()));
-		System.out.println(nodeRow.getCell(8).getStringCellValue());
-		System.out.println(switches
-				.get(nodeRow.getCell(8).getStringCellValue()));
-		switchObj.setPrt((int) nodeRow.getCell(9).getNumericCellValue());
-		switchObj.setBaseType("SwitchPort");
-		netObj.setBaseType("NetworkInterface");
+			System.out.println("Row nr: " + ifRow.getRowNum());
+			cmDevice.netObject netObj = new cmDevice.netObject();
+			ArrayList<cmDevice.netObject> helperList = new ArrayList<cmDevice.netObject>();
+			netObj.setBaseType("NetworkInterface");
+			netObj.setCardType(ifRow.getCell(3).getStringCellValue());
+			netObj.setChildType(ifRow.getCell(4).getStringCellValue());
+			netObj.setDhcp((ifRow.getCell(5).getNumericCellValue() > 0.1) ? true
+					: false);
+			netObj.setIp(ifRow.getCell(7).getStringCellValue());
+			// netObj.setMac(ifRow.getCell(0).toString());
+			//netObj.setModified(true);
+			netObj.setName(ifRow.getCell(1).getStringCellValue());
+			netObj.setNetwork(networks.get(ifRow.getCell(6)
+					.getStringCellValue()));
+			//netObj.setOldLocalUniqueKey(0L);
+			netObj.setRevision("");
+			netObj.setSpeed(ifRow.getCell(8, Row.CREATE_NULL_AS_BLANK).getStringCellValue());
+			netObj.setStartIf("ALWAYS");
+			netObj.setToBeRemoved(false);
+			netObj.setUniqueKey((long) ifRow.getCell(2).getNumericCellValue());
+			//netObj.setAdditionalHostnames(new ArrayList<String>(Arrays.asList(ifRow.getCell(9, Row.CREATE_NULL_AS_BLANK).getStringCellValue().split("\\s*,\\s*"))));
+			//netObj.setMac(ifRow.getCell(10, Row.CREATE_NULL_AS_BLANK).getStringCellValue());
+			netObj.setMode((int) ifRow.getCell(11, Row.CREATE_NULL_AS_BLANK).getNumericCellValue());
+			netObj.setOptions(ifRow.getCell(12, Row.CREATE_NULL_AS_BLANK).getStringCellValue());
+			netObj.setMembers(new ArrayList<String>(Arrays.asList(ifRow.getCell(13, Row.CREATE_NULL_AS_BLANK).getStringCellValue().split("\\s*,\\s*"))));
+			// ifmap.put(ifRow.getCell(0).getStringCellValue(), new
+			// HashMap<String, cmDevice.netObject>());
+			// helperMap.put(ifRow.getCell(1).getStringCellValue(), netObj) ;
+			// ifmap.get(ifRow.getCell(0).getStringCellValue()).putIfAbsent(ifRow.getCell(1).getStringCellValue(),
+			// netObj);
+			// ifmap.put(ifRow.getCell(0).getStringCellValue(), helperMap);
 
-		netObj.setCardType(ifRow.getCell(3).getStringCellValue());
-		netObj.setChildType(ifRow.getCell(4).getStringCellValue());
-		netObj.setDhcp((ifRow.getCell(5).getNumericCellValue() > 0.1) ? true
-				: false);
-		netObj.setIp(ifRow.getCell(7).getStringCellValue());
-		// netObj.setMac(ifRow.getCell(0).toString());
-		netObj.setModified(true);
-		netObj.setName(ifRow.getCell(1).getStringCellValue());
-		netObj.setNetwork(networks.get(ifRow.getCell(6).getStringCellValue()));
-		netObj.setOldLocalUniqueKey(0L);
-		netObj.setRevision("");
-		netObj.setSpeed(ifRow.getCell(9).getStringCellValue());
-		netObj.setStartIf("ALWAYS");
-		netObj.setToBeRemoved(false);
-		netObj.setUniqueKey((long) ifRow.getCell(2).getNumericCellValue());
-		// netObj.setAdditionalHostnames(emptyslist);
+			if (!ifmap.containsKey(ifRow.getCell(0).getStringCellValue())) {
+				ifmap.put(ifRow.getCell(0).getStringCellValue(),
+						new ArrayList<cmDevice.netObject>());
+			}
+			helperList = ifmap.get(ifRow.getCell(0).getStringCellValue());
+			helperList.add(netObj);
+			ifmap.put(ifRow.getCell(0).getStringCellValue(), helperList);
 
-		devObj.setBaseType("Device");
-		//devObj.setCreationTime(0L);
-		devObj.setCustomPingScript("");
-		devObj.setCustomPingScriptArgument("");
-		devObj.setCustomPowerScript("");
-		devObj.setCustomPowerScriptArgument("");
-		devObj.setCustomRemoteConsoleScript("");
-		devObj.setCustomRemoteConsoleScriptArgument("");
-		devObj.setDisksetup("");
-		devObj.setBmcPowerResetDelay(0L);
-		devObj.setBurning(false);
-		devObj.setEthernetSwitch(switchObj);
-		devObj.setExcludeListFull("");
-		devObj.setExcludeListGrab("");
-		devObj.setExcludeListGrabnew("");
-		devObj.setExcludeListManipulateScript("");
-		devObj.setExcludeListSync("");
-		devObj.setExcludeListUpdate("");
-		devObj.setFinalize("");
-		devObj.setRack(racks.get(nodeRow.getCell(10).getStringCellValue()));
-		devObj.setRackHeight((long) nodeRow.getCell(11).getNumericCellValue());
-		devObj.setRackPosition((long) nodeRow.getCell(12).getNumericCellValue());
-		devObj.setIndexInsideContainer(0L);
-		devObj.setInitialize("");
-		devObj.setInstallBootRecord(false);
-		devObj.setInstallMode("");
-		devObj.setIoScheduler("");
-		devObj.setLastProvisioningNode(0L);
-		devObj.setMac(nodeRow.getCell(6).getStringCellValue());
+			continue;
+		}
 
-		devObj.setModified(true);
-		devObj.setCategory(categories.get(nodeRow.getCell(1)
-				.getStringCellValue()));
-		devObj.setChildType("PhysicalNode");
-		devObj.setDatanode((nodeRow.getCell(5).getNumericCellValue() > 0.1) ? true
-				: false);
-		devObj.setHostname(nodeRow.getCell(0).getStringCellValue());
-		devObj.setModified(true);
-		devObj.setPartition(partitions.get(nodeRow.getCell(2)
-				.getStringCellValue()));
-		devObj.setUseExclusivelyFor("Category");
+		for (int i = 0; i < nodeSheet.getPhysicalNumberOfRows(); i++) {
+			Row nodeRow = nodeSheet.getRow(i);
+			if (nodeRow.getRowNum() == 0) {
+				continue; // just skip the rows if row number is 0
+			}
 
-		devObj.setNextBootInstallMode("");
-		devObj.setNotes("");
-		devObj.setOldLocalUniqueKey(0L);
+			newnode.setService("cmdevice");
+			newnode.setCall("addDevice");
 
-		devObj.setPowerControl("none");
-		devObj.setManagementNetwork(0L);
+			Map<String, Long> ifmap2 = new HashMap<String, Long>();
+			for (cmDevice.netObject j : ifmap.get(nodeRow.getCell(0)
+					.getStringCellValue()))
+				ifmap2.put(j.getName(), j.getUniqueKey());
 
-		devObj.setProvisioningNetwork(1L);
-		devObj.setProvisioningTransport("RSYNCDAEMON");
-		devObj.setPxelabel("");
-		// "rack": 90194313218,
-		// "rackHeight": 1,
-		// "rackPosition": 4,
-		devObj.setRaidconf("");
-		devObj.setRevision("");
+			switchObj.setEthernetSwitch(switches.get(nodeRow.getCell(8)
+					.getStringCellValue()));
+			System.out.println(nodeRow.getCell(8).getStringCellValue());
+			System.out.println(switches.get(nodeRow.getCell(8)
+					.getStringCellValue()));
+			switchObj.setPrt((int) nodeRow.getCell(9).getNumericCellValue());
+			switchObj.setBaseType("SwitchPort");
 
-		devObj.setSoftwareImageProxy(null);
-		devObj.setStartNewBurn(false);
+			devObj.setBaseType("Device");
+			// devObj.setCreationTime(0L);
+			devObj.setCustomPingScript("");
+			devObj.setCustomPingScriptArgument("");
+			devObj.setCustomPowerScript("");
+			devObj.setCustomPowerScriptArgument("");
+			devObj.setCustomRemoteConsoleScript("");
+			devObj.setCustomRemoteConsoleScriptArgument("");
+			devObj.setDisksetup("");
+			devObj.setBmcPowerResetDelay(0L);
+			devObj.setBurning(false);
+			devObj.setEthernetSwitch(switchObj);
+			devObj.setExcludeListFull("");
+			devObj.setExcludeListGrab("");
+			devObj.setExcludeListGrabnew("");
+			devObj.setExcludeListManipulateScript("");
+			devObj.setExcludeListSync("");
+			devObj.setExcludeListUpdate("");
+			devObj.setFinalize("");
+			devObj.setRack(racks.get(nodeRow.getCell(10).getStringCellValue()));
+			devObj.setRackHeight((long) nodeRow.getCell(11)
+					.getNumericCellValue());
+			devObj.setRackPosition((long) nodeRow.getCell(12)
+					.getNumericCellValue());
+			devObj.setIndexInsideContainer(0L);
+			devObj.setInitialize("");
+			devObj.setInstallBootRecord(false);
+			devObj.setInstallMode("");
+			devObj.setIoScheduler("");
+			devObj.setLastProvisioningNode(0L);
+			devObj.setMac(nodeRow.getCell(6).getStringCellValue());
 
-		devObj.setTag("00000000a000");
-		devObj.setToBeRemoved(false);
-		// devObj.setUcsInfoConfigured(null);
-		// devObj.setUniqueKey(12345L);
+			devObj.setModified(true);
+			devObj.setCategory(categories.get(nodeRow.getCell(1)
+					.getStringCellValue()));
+			devObj.setChildType("PhysicalNode");
+			//devObj.setDatanode((nodeRow.getCell(5).getNumericCellValue() > 0.1) ? true
+			//		: false);
+			devObj.setHostname(nodeRow.getCell(0).getStringCellValue());
+			devObj.setModified(true);
+			devObj.setPartition(partitions.get(nodeRow.getCell(2)
+					.getStringCellValue()));
+			devObj.setUseExclusivelyFor("Category");
 
-		devObj.setUserdefined1("");
-		devObj.setUserdefined2("");
+			devObj.setNextBootInstallMode("");
+			devObj.setNotes("");
+			devObj.setOldLocalUniqueKey(0L);
 
-		ArrayList<Object> mylist = new ArrayList<Object>();
+			devObj.setPowerControl(nodeRow.getCell(7).getStringCellValue());
 
-		ArrayList<cmDevice.netObject> mylist2 = new ArrayList<cmDevice.netObject>();
-		ArrayList<Object> emptylist = new ArrayList<Object>();
+			// System.out.println(ifmap.get("excelnode001").size());
+			// System.out.println(ifmap.get(nodeRow.getCell(0).getStringCellValue()).get(nodeRow.getCell(3).getStringCellValue()).getUniqueKey());
 
-		devObj.setNetworks(mylist2);
-		devObj.setFsexports(emptylist);
-		devObj.setFsmounts(emptylist);
-		devObj.setGpuSettings(emptylist);
-		devObj.setFspartAssociations(emptylist);
+			devObj.setManagementNetwork(networks.get(nodeRow.getCell(3)
+					.getStringCellValue()));
 
-		devObj.setPowerDistributionUnits(emptyslist);
+			devObj.setProvisioningNetwork(ifmap2.get(nodeRow.getCell(4)
+					.getStringCellValue()));
+			devObj.setProvisioningTransport("RSYNCDAEMON");
+			devObj.setPxelabel("");
+			// "rack": 90194313218,
+			// "rackHeight": 1,
+			// "rackPosition": 4,
+			devObj.setRaidconf("");
+			devObj.setRevision("");
 
-		devObj.setRoles(emptylist);
-		devObj.setServices(emptylist);
-		devObj.setStaticRoutes(emptylist);
+			devObj.setSoftwareImageProxy(null);
+			devObj.setStartNewBurn(false);
 
-		mylist2.add(netObj);
+			devObj.setTag("00000000a000");
+			devObj.setToBeRemoved(false);
+			// devObj.setUcsInfoConfigured(null);
+			// devObj.setUniqueKey(12345L);
 
-		mylist.add(devObj);
-		mylist.add(1);
-		newnode.setArgs(mylist);
+			devObj.setUserdefined1("");
+			devObj.setUserdefined2("");
 
-		GsonBuilder builder = new GsonBuilder();
-		builder.enableComplexMapKeySerialization();
+			ArrayList<Object> mylist = new ArrayList<Object>();
 
-		// Gson g = new Gson();
-		Gson g = builder.create();
+			ArrayList<cmDevice.netObject> mylist2 = new ArrayList<cmDevice.netObject>();
+			ArrayList<Object> emptylist = new ArrayList<Object>();
 
-		String json2 = g.toJson(newnode);
+			devObj.setFsexports(emptylist);
+			devObj.setFsmounts(emptylist);
+			devObj.setGpuSettings(emptylist);
+			devObj.setFspartAssociations(emptylist);
 
-		// To be used from a real console and not Eclipse
+			devObj.setPowerDistributionUnits(emptyslist);
 
-		String message = JSonRequestor.doRequest(json2, cmURL, cookies);
+			devObj.setRoles(emptylist);
+			devObj.setServices(emptylist);
+			devObj.setStaticRoutes(emptylist);
 
+			mylist2 = ifmap.get(nodeRow.getCell(0).getStringCellValue());
+
+			devObj.setNetworks(mylist2);
+			mylist.add(devObj);
+			mylist.add(1);
+			newnode.setArgs(mylist);
+
+			GsonBuilder builder = new GsonBuilder();
+			builder.enableComplexMapKeySerialization();
+
+			// Gson g = new Gson();
+			Gson g = builder.create();
+
+			String json2 = g.toJson(newnode);
+
+			// To be used from a real console and not Eclipse
+
+			String message = JSonRequestor.doRequest(json2, cmURL, cookies);
+			continue;
+		}
+
+		JOptionPane optionPaneF = new JOptionPane("The nodes have been added!");
+		JDialog myDialogF = optionPaneF.createDialog(null, "Complete:  ");
+		myDialogF.setModal(false);
+		myDialogF.setVisible(true);
 		doLogout(cmURL, cookies);
-		System.exit(0);
+		// System.exit(0);
 	}
-
 }

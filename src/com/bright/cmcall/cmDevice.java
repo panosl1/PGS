@@ -663,6 +663,36 @@ public class cmDevice {
 		private String startIf;
 		private Boolean toBeRemoved;
 		private Long uniqueKey;
+		private int mode;
+
+		private String options;
+		private List<String> members;
+		
+		public int getMode() {
+			return mode;
+		}
+
+		public void setMode(int mode) {
+			this.mode = mode;
+		}
+
+		public String getOptions() {
+			return options;
+		}
+
+		public void setOptions(String options) {
+			this.options = options;
+		}
+
+		public List<String> getMembers() {
+			return members;
+		}
+
+		public void setMembers(List<String> members) {
+			this.members = members;
+		}
+
+		
 
 		public List<String> getAdditionalHostnames() {
 			return additionalHostnames;
